@@ -214,6 +214,7 @@ export default function SignIn() {
 										id="email"
 										type="email"
 										name="email"
+										required
 										placeholder="E-Mail"
 										inputProps={{ "aria-label": "email" }}
 										autoComplete="email"

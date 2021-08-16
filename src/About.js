@@ -885,8 +885,8 @@ export default function About() {
 											whereby Companies come to us to create an online presence
 											for them. Working at Webbiit Technologies i had the
 											privilage to work with amazing Web Develpers both Junior
-											and Senior Developers. I also Junior Developers the hard
-											part of JAVASCRIPT
+											and Senior Developers. I always also teach Junior
+											Developers the hard parts of JAVASCRIPT
 										</Typography>
 									</Grid>
 								</Box>

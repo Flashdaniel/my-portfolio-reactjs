@@ -92,7 +92,6 @@ const useStyles = makeStyles((theme) => ({
 	},
 	socialmedia: {
 		padding: 0,
-		cursor: "context-menu",
 	},
 	textfield: {
 		backgroundColor: theme.palette.common.lightDark,
@@ -176,6 +175,7 @@ export default function Contact() {
 	});
 	const [form, setForm] = useState(initialState);
 	const [error, setError] = useState(false);
+	const [success, setSuccess] = useState(false);
 	const [transition, setTransition] = React.useState(undefined);
 
 	const [open] = useContext(DrawerContext);
@@ -193,30 +193,52 @@ export default function Contact() {
 		}
 
 		setError(false);
+		setSuccess(false);
 	};
+
+	function validateEmail(email) {
+		const re =
+			/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		return re.test(email);
+	}
 
 	const handleSubmit = (Transition) => (e) => {
 		e.preventDefault();
-		emailjs
-			.sendForm(
-				"service_vvs1jfm",
-				"template_o0t2hua",
-				e.target,
-				"user_3jBibs9k1Zd4THpOV8lSc"
-			)
-			.then(
-				(result) => {
-					console.log(result.text);
-					setTransition(() => Transition);
-					setError(false);
-				},
-				(error) => {
-					console.log(error.text);
-					setTransition(() => Transition);
-					setError(true);
-				}
-			);
-		e.target.reset();
+		if (
+			form.name.length > 1 &&
+			form.email.length > 1 &&
+			form.subject.length > 1 &&
+			form.message.length > 1
+		) {
+			if (validateEmail(form.email)) {
+				emailjs
+					.sendForm(
+						"service_vvs1jfm",
+						"template_o0t2hua",
+						e.target,
+						"user_3jBibs9k1Zd4THpOV8lSc"
+					)
+					.then(
+						(result) => {
+							console.log(result.text);
+							setTransition(() => Transition);
+							setSuccess(true);
+						},
+						(error) => {
+							console.log(error.text);
+							setTransition(() => Transition);
+							setError(true);
+						}
+					);
+				e.target.reset();
+			} else {
+				setTransition(() => Transition);
+				setError(true);
+			}
+		} else {
+			setTransition(() => Transition);
+			setError(true);
+		}
 	};
 
 	const title = (
@@ -287,6 +309,7 @@ export default function Contact() {
 										aria-label="email"
 										disableRipple
 										className={classes.socialmedia}
+										style={{ cursor: "context-menu" }}
 									>
 										<img
 											src={EmailIcon}
@@ -314,6 +337,7 @@ export default function Contact() {
 										aria-label="phone number"
 										disableRipple
 										className={classes.socialmedia}
+										style={{ cursor: "context-menu" }}
 									>
 										<img
 											src={CallIcon}
@@ -330,20 +354,24 @@ export default function Contact() {
 							<Grid container noWrap>
 								<Grid item>
 									<IconButton
-										aria-label="delete"
+										aria-label="instagram icon"
 										className={classes.socialmedia}
+										component={Link}
+										href=""
 									>
 										<img
 											src={InstagramIcon}
-											alt="facebook icon"
+											alt="instagram icon"
 											style={{ width: 60, height: 60 }}
 										/>
 									</IconButton>
 								</Grid>
 								<Grid item>
 									<IconButton
-										aria-label="delete"
+										aria-label="facebook icon"
 										className={classes.socialmedia}
+										component={Link}
+										href=""
 									>
 										<img
 											src={facebookIcon}
@@ -354,24 +382,28 @@ export default function Contact() {
 								</Grid>
 								<Grid item>
 									<IconButton
-										aria-label="delete"
+										aria-label="twitter"
 										className={classes.socialmedia}
+										component={Link}
+										href=""
 									>
 										<img
 											src={TwitterIcon}
-											alt="facebook icon"
+											alt="twitter icon"
 											style={{ width: 60, height: 60 }}
 										/>
 									</IconButton>
 								</Grid>
 								<Grid item>
 									<IconButton
-										aria-label="delete"
+										aria-label="linkedin"
 										className={classes.socialmedia}
+										component={Link}
+										href="https://www.linkedin.com/in/daniel-nweze-017909214/"
 									>
 										<img
 											src={LinkedInIcon}
-											alt="facebook icon"
+											alt="linkedin icon"
 											style={{ width: 60, height: 60 }}
 										/>
 									</IconButton>
@@ -380,6 +412,8 @@ export default function Contact() {
 									<IconButton
 										aria-label="github icon"
 										className={classes.socialmedia}
+										component={Link}
+										href="https://github.com/Flashdaniel"
 									>
 										<img
 											src={GitHubIcon}
@@ -399,20 +433,26 @@ export default function Contact() {
 					>
 						<Snackbar
 							classes={{
-								root: error ? classes.snack : classes.snackSuccess,
+								root: success
+									? classes.snackSuccess
+									: error
+									? classes.snack
+									: classes.snackSuccess,
 								message: classes.snackMessage,
 							}}
 							anchorOrigin={{
 								vertical: "top",
 								horizontal: "center",
 							}}
-							open={error}
+							open={error || success}
 							autoHideDuration={6000}
 							onClose={handleClose}
 							TransitionComponent={transition}
 							key={transition ? transition.name : ""}
 							message={
-								error
+								success
+									? "Message send successfully!"
+									: error
 									? "Please check to be sure your inputs are correct!"
 									: "Message send successfully!"
 							}
@@ -438,6 +478,7 @@ export default function Contact() {
 											variant="filled"
 											name="name"
 											type="text"
+											required
 											onChange={handleChange}
 											className={classes.textfield}
 										/>
@@ -449,6 +490,7 @@ export default function Contact() {
 											type="email"
 											name="email"
 											variant="filled"
+											required
 											onChange={handleChange}
 											className={classes.textfield}
 										/>
@@ -460,6 +502,7 @@ export default function Contact() {
 											name="subject"
 											variant="filled"
 											type="text"
+											required
 											onChange={handleChange}
 											className={classes.textfield}
 										/>
@@ -474,6 +517,7 @@ export default function Contact() {
 										multiline
 										rows={9}
 										type="text"
+										required
 										fullWidth
 										onChange={handleChange}
 										className={classes.textfield}

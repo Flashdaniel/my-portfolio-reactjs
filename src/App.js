@@ -13,6 +13,7 @@ import About from "./About";
 import Portfolio from "./Portfolio";
 import Contact from "./Contact";
 import Signin from "./Signin";
+import Logout from "./Logout";
 import Dashboard from "./Dashboard";
 import Auth from "./Auth";
 
@@ -161,6 +162,7 @@ function App(props) {
 									)
 								}
 							/>
+							<Route exact path="/logout" component={Logout} />
 						</Switch>
 					</BrowserRouter>
 				</LinkProvider>
