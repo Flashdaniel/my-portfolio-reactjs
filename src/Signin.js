@@ -134,9 +134,11 @@ export default function SignIn() {
 				email: formData.email,
 				password: formData.password,
 			})
-			.then((result) => {
-				localStorage.setItem("access_token", result.data.access);
-				localStorage.setItem("access_refresh", result.data.refresh);
+			.then((res) => {
+				axiosInstance.defaults.headers["Authorization"] =
+					"JWT " + res.data.access;
+				localStorage.setItem("access_token", res.data.access);
+				localStorage.setItem("refresh_token", res.data.refresh);
 				setErrors(true);
 				history.push("/dashboard");
 			})

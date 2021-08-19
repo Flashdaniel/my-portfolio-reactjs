@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { withStyles, makeStyles, useTheme } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -14,14 +14,16 @@ import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import EditIcon from "@material-ui/icons/Edit";
-import axios from "axios";
+import BeatLoader from "react-spinners/BeatLoader";
+import Typography from "@material-ui/core/Typography";
+import axiosInstance from "./Axios";
 
 import DashboardHeader from "./components/dashboard/DashboardHeader";
 
 const StyledTableCell = withStyles((theme) => ({
 	head: {
-		backgroundColor: theme.palette.common.red,
-		color: theme.palette.common.white,
+		backgroundColor: theme.palette.common.lightDark,
+		color: theme.palette.common.red,
 		fontWeight: 800,
 	},
 	body: {
@@ -38,8 +40,8 @@ const StyledTableRow = withStyles((theme) => ({
 	},
 }))(TableRow);
 
-function createData(name, calories, fat, carbs, protein) {
-	return { name, calories, fat, carbs, protein };
+function createData(id, name, client, date, language) {
+	return { id, name, client, date, language };
 }
 
 const rows = [
@@ -72,68 +74,119 @@ const useStyles = makeStyles((theme) => ({
 export default function Dashboard() {
 	const classes = useStyles();
 	const theme = useTheme();
+	const [portfolioState, setPorfolioState] = useState({
+		portfolios: null,
+		loading: false,
+	});
+
+	const [user, setUser] = useState("");
+
+	useEffect(() => {
+		if (localStorage.getItem("access_token")) {
+			axiosInstance({
+				method: "get",
+				url: "account/current_user/",
+			}).then((res) => {
+				setUser(res.data.first_name);
+			});
+		}
+	});
+
+	useEffect(() => {
+		setPorfolioState({ loading: true });
+		document.title = "Dashboard - Daniel Nweze";
+		axiosInstance
+			.get("work/admin/")
+			.then((works) => {
+				const work = works.data;
+				setPorfolioState({ portfolios: work, loading: false });
+			})
+			.catch((error) => setPorfolioState({ loading: false }));
+	}, [setPorfolioState]);
 
 	return (
 		<div className={classes.root}>
-			<DashboardHeader />
+			<DashboardHeader user={user} />
 			<main className={classes.content}>
 				<Container maxWidth="md" className={classes.container}>
 					<TableContainer component={Paper}>
 						<Table className={classes.table} aria-label="customized table">
-							<TableHead>
+							<TableHead
+								style={{ backgroundColor: theme.palette.common.lightDark }}
+							>
 								<TableRow>
-									<StyledTableCell>Dessert (100g serving)</StyledTableCell>
-									<StyledTableCell align="right">Calories</StyledTableCell>
-									<StyledTableCell align="right">Fat&nbsp;(g)</StyledTableCell>
-									<StyledTableCell align="right">
-										Carbs&nbsp;(g)
-									</StyledTableCell>
-									<StyledTableCell align="right">
-										Protein&nbsp;(g)
-									</StyledTableCell>
-									<StyledTableCell align="right">Delete</StyledTableCell>
-									<StyledTableCell align="right">Edit</StyledTableCell>
+									<StyledTableCell align="left">PROJECT NAME</StyledTableCell>
+									<StyledTableCell align="left">CLIENT</StyledTableCell>
+									<StyledTableCell align="left">LANGUAGE</StyledTableCell>
+									<StyledTableCell align="left">Delete</StyledTableCell>
+									<StyledTableCell align="left">Edit</StyledTableCell>
 								</TableRow>
 							</TableHead>
 							<TableBody>
-								{rows.map((row) => (
-									<StyledTableRow key={row.name}>
-										<StyledTableCell component="th" scope="row">
-											{row.name}
-										</StyledTableCell>
-										<StyledTableCell align="right">
-											{row.calories}
-										</StyledTableCell>
-										<StyledTableCell align="right">{row.fat}</StyledTableCell>
-										<StyledTableCell align="right">{row.carbs}</StyledTableCell>
-										<StyledTableCell align="right">
-											{row.protein}
-										</StyledTableCell>
-										<StyledTableCell align="right">
-											<IconButton
-												aria-label="account of current user"
-												aria-controls="primary-search-account-menu"
-												aria-haspopup="true"
-												color="inherit"
-											>
-												<DeleteIcon style={{ color: "red" }} />
-											</IconButton>
-										</StyledTableCell>
-										<StyledTableCell align="right">
-											<IconButton
-												aria-label="account of current user"
-												aria-controls="primary-search-account-menu"
-												aria-haspopup="true"
-												color="inherit"
-											>
-												<EditIcon style={{ color: "blue" }} />
-											</IconButton>
+								{portfolioState.loading ? (
+									<StyledTableRow>
+										<StyledTableCell colSpan={5} align="center">
+											<BeatLoader color="black" height={100} width={10} />
 										</StyledTableCell>
 									</StyledTableRow>
-								))}
-								<StyledTableRow>
-									<StyledTableCell colSpan={7} align="right">
-										<Button variant="contained" color="primary">
+								) : !portfolioState.portfolios ||
+								  portfolioState.portfolios.length === 0 ? (
+									<StyledTableRow>
+										<StyledTableCell colSpan={5} align="center">
+											<Typography variant="h6" style={{ color: "black" }}>
+												No portfolio, sorry!
+											</Typography>
+										</StyledTableCell>
+									</StyledTableRow>
+								) : (
+									portfolioState.portfolios.map((work) => (
+										<StyledTableRow key={work.id}>
+											<StyledTableCell align="left">
+												{work.project_name.toUpperCase()}
+											</StyledTableCell>
+											<StyledTableCell align="left">
+												{work.client.toUpperCase()}
+											</StyledTableCell>
+											<StyledTableCell align="left">
+												{work.language.toUpperCase()}
+											</StyledTableCell>
+											<StyledTableCell align="left">
+												<IconButton
+													aria-label="account of current user"
+													aria-controls="primary-search-account-menu"
+													aria-haspopup="true"
+													color="inherit"
+												>
+													<DeleteIcon style={{ color: "red" }} />
+												</IconButton>
+											</StyledTableCell>
+											<StyledTableCell align="right">
+												<IconButton
+													aria-label="account of current user"
+													aria-controls="primary-search-account-menu"
+													aria-haspopup="true"
+													color="inherit"
+												>
+													<EditIcon style={{ color: "blue" }} />
+												</IconButton>
+											</StyledTableCell>
+										</StyledTableRow>
+									))
+								)}
+								<StyledTableRow style={{ backgroundColor: "white" }}>
+									<StyledTableCell
+										colSpan={7}
+										align="right"
+										style={{ backgroundColor: "white" }}
+									>
+										<Button
+											variant="outlined"
+											color="primary"
+											style={{
+												borderRadius: 20,
+												backgroundColor: theme.palette.common.lightDark,
+											}}
+										>
 											Add portfolio
 										</Button>
 									</StyledTableCell>

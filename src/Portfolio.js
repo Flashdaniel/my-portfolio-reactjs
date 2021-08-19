@@ -10,7 +10,7 @@ import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 import CardActionArea from "@material-ui/core/CardActionArea";
 import BeatLoader from "react-spinners/BeatLoader";
-import axios from "axios";
+import axiosInstance from "./Axios";
 
 import Header from "./components/ui/Header";
 import Appbar from "./components/ui/Appbar";
@@ -80,9 +80,8 @@ export default function Portfolio() {
 	useEffect(() => {
 		setPorfolioState({ loading: true });
 		document.title = "Porfolio - Daniel Nweze";
-		const apiUrl = "http://127.0.0.1:8000/api/work/";
-		axios
-			.get(apiUrl)
+		axiosInstance
+			.get("work/")
 			.then((works) => {
 				const work = works.data;
 				setPorfolioState({ portfolios: work, loading: false });
@@ -158,7 +157,7 @@ export default function Portfolio() {
 											<CardMedia
 												className={classes.media}
 												image="https://source.unsplash.com/random/"
-												title={work.project_name}
+												title={work.project_name.toUpperCase()}
 											/>
 										</CardActionArea>
 									</Card>

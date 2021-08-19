@@ -77,7 +77,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-export default function MiniDrawer() {
+export default function MiniDrawer({ user }) {
 	const classes = useStyles();
 	const theme = useTheme();
 
@@ -110,7 +110,7 @@ export default function MiniDrawer() {
 					</div>
 					<nav style={{ display: "flex", alignItems: "center" }}>
 						<Typography variant="h6" nowrap style={{ fontWeight: 600 }}>
-							Daniel
+							{user}
 						</Typography>
 						<IconButton aria-label="show 4 new mails" color="inherit">
 							<Badge badgeContent={4} color="secondary">

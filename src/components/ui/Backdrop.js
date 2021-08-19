@@ -110,7 +110,7 @@ export default function SimpleBackdrop(props) {
 												<CardMedia
 													className={classes.media}
 													image="https://source.unsplash.com/random/"
-													title={work.project_name}
+													title={work.project_name.toUpperCase()}
 												/>
 												<CardContent>
 													<Typography
@@ -120,7 +120,7 @@ export default function SimpleBackdrop(props) {
 														component="h2"
 													>
 														<Link href={work.preview} target="_blank">
-															{work.project_name}
+															{work.project_name.toUpperCase()}
 														</Link>
 													</Typography>
 												</CardContent>
